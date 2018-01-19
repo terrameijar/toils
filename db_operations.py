@@ -3,7 +3,10 @@ import os.path
 import sqlite3
 
 # TODO: Add database operations into this file
-# TODO: Create database if it does not exist.
+# TODO: Add code to modify database records
+# TODO: User must be able to update/delete clients
+# TODO: User must be able to retrieve clients
+# TODO: Handle missing database problem.
 
 DATABASE = 'client_data/clients.db'
 
@@ -19,7 +22,6 @@ def create_database():
                project TEXT NOT NULL, PRIMARY KEY(client_name))
                """)
     assert os.path.exists(filename)
-
 
 def destroy_database():
     pass
@@ -42,12 +44,15 @@ def add_client(name, website, project, rate=0):
         # except OperationalError:
         pass
 
-def delete_client(name):
+def retrieve_client_details(name):
     pass
-    # remove this client from database
 
 def modify_client(name):
     pass
+
+def delete_client(name):
+    pass
+    # remove this client from database
 
 if __name__ == '__main__':
     create_database()
