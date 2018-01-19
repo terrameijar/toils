@@ -1,8 +1,10 @@
 import datetime
 import time
 import gi
+
 import pdb
 import logging
+import db_operations
 
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, GLib
@@ -47,13 +49,18 @@ class TimeTracker(Gtk.Window):
 
 
     def save_button_pressed(self, widget):
-        logging.debug(self.client_name.get_text())
-        # TODO: Save client in a DB
-        fobj = open('time_data.txt', 'a+')
-        fobj.write(self.client_name.get_text())
-        fobj.write('\n')
-        fobj.close()
+        logging.debug("Save button pressed")
 
+        name = self.client_name.get_text()
+        website = self.client_website.get_text()
+        project = self.client_project.get_text()
+        logging.debug('Name: ' + name)
+        logging.debug('Website: ' + website)
+        logging.debug('Project:'  + project)
+
+        db_operations.add_client(name, website, project)
+        logging.debug("New client added to database.")
+        self.client_info_window_close(self)
 
     def client_info_window_close(self, widget):
         self.client_info_window.close()
@@ -67,8 +74,11 @@ class TimeTracker(Gtk.Window):
 
         # Widgets
         self.client_name = self.builder.get_object("entry_client_name")
+        self.client_website = self.builder.get_object("entry_website")
+        self.client_project = self.builder.get_object("entry_project")
         self.btn_cancel = self.builder.get_object("btn_cancel")
         self.btn_save = self.builder.get_object("btn_save")
+
         self.btn_cancel.connect("clicked", self.client_info_window_close)
         self.btn_save.connect("clicked", self.save_button_pressed)
         self.client_info_window.show_all()
