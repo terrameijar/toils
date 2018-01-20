@@ -9,10 +9,12 @@ import db_operations
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, GLib
 
+
 class TimeTracker(Gtk.Window):
 
     def __init__(self):
 
+        # Top level container
         self.builder = Gtk.Builder()
         self.builder.add_from_file("layout1.glade")
         self.window = self.builder.get_object("window2")
@@ -20,50 +22,65 @@ class TimeTracker(Gtk.Window):
         self.window.connect("delete-event", Gtk.main_quit)
         self.window.show_all()
 
-        # GUI Widgets
+        # GUI widgets
         self.btn_start = self.builder.get_object("btn_start")
+        self.btn_start.set_sensitive(False)
         self.btn_stop = self.builder.get_object("btn_stop")
         self.lbl_time = self.builder.get_object("lbl_time")
         self.lbl_task_name = self.builder.get_object("lbl_taskName")
         self.entry_task_name = self.builder.get_object("entry_activity")
         self.combo_client = self.builder.get_object("combo_client")
-        # Fetch clients
-        rows = db_operations.retrieve_all_clients()
-        for client in rows:
-            self.combo_client.append_text(client[0])
-
+        logging.debug(
+            "Combo box state: %s " % (self.combo_client.get_active_text()))
         # Main menu container
         self.main_menubar = self.builder.get_object("menubar2")
-
         # Main menu items
         self.file_menu = self.builder.get_object("menuitem_file")
         self.edit_menu = self.builder.get_object("menuitem_edit")
-
         # Drop Down Menu items
         self.file_new = self.builder.get_object("menuitem_file_new")
         self.edit_prefs = self.builder.get_object("menuitem_edit_pref")
+
 
         # Widget-Signal connections
         self.btn_start.connect("clicked", self.start_timer)
         self.btn_stop.connect("clicked", self.stop_timer)
         self.file_new.connect("activate", self.new_client_window_open)
+        self.combo_client.connect("changed", self.client_drop_down_pressed)
 
         # Other initialisations
         self.timer_active = False
+        self.update_clients_list()
 
+    def update_clients_list(self):
+            # Update combo box without adding duplicates
+            try:
+                self.combo_client.remove_all()
+                rows = db_operations.retrieve_all_clients()
+                for client in rows:
+                    self.combo_client.append_text(client[0])
+            except:
+                pass
+
+    def client_drop_down_pressed(self, widget):
+        current_client = self.combo_client.get_active_text()
+        if current_client:
+            print(current_client, " selected")
+            self.btn_start.set_sensitive(True)
 
     def save_button_pressed(self, widget):
-        logging.debug("Save button pressed")
+        logging.debug("Save button pressed.")
 
         name = self.client_name.get_text()
         website = self.client_website.get_text()
         project = self.client_project.get_text()
         logging.debug('Name: ' + name)
         logging.debug('Website: ' + website)
-        logging.debug('Project:'  + project)
+        logging.debug('Project:' + project)
 
         db_operations.add_client(name, website, project)
         logging.debug("New client added to database.")
+        self.update_clients_list()
         self.client_info_window_close(self)
 
     def client_info_window_close(self, widget):
@@ -71,8 +88,10 @@ class TimeTracker(Gtk.Window):
 
     def new_client_window_open(self, widget):
         # Draws the Client Information Window
+        # widgets are defined here because when they are defined in the
+        # __init__ function of the class, they are not drawn for some reason
+
         logging.debug("new_client_window_open function activated")
-        #pdb.set_trace()
         self.builder.add_from_file("layout1.glade")
         self.client_info_window = self.builder.get_object("window_client_info")
 
@@ -108,7 +127,6 @@ class TimeTracker(Gtk.Window):
         h,m,s = '{:02}'.format(hours), '{:02}'.format(mins), '{:02}'.format(seconds)
         return time_format.format(hours=h, minutes=m, seconds=s)
 
-
     def display_time(self, start_time):
         '''Update GUI with elapsed time'''
 
@@ -137,6 +155,7 @@ class TimeTracker(Gtk.Window):
 
     def stop_timer(self, widget):
         """Stops the timer"""
+        self.btn_start.set_sensitive(False)
         self.timer_active = False
         print("Stop timer button pressed")
 
