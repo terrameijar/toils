@@ -7,6 +7,7 @@ import sqlite3
 # TODO: User must be able to update/delete clients
 # TODO: User must be able to retrieve clients
 # TODO: Handle missing database problem.
+# TODO: Consider using only one function to handle SQL operations
 
 DATABASE = 'client_data/clients.db'
 
@@ -45,14 +46,29 @@ def add_client(name, website, project, rate=0):
         pass
 
 def retrieve_client_details(name):
+    # Return the details of one client
     pass
-
 def modify_client(name):
     pass
 
 def delete_client(name):
     pass
     # remove this client from database
+
+def retrieve_all_clients():
+    # Retrieve the details of all the clients
+    try:
+        with sqlite3.connect(DATABASE) as conn:
+            c = conn.cursor()
+            c.execute(
+                "SELECT client_name, client_website, project FROM clients")
+            rows = c.fetchall()
+            return rows
+    except sqlite3.OperationalError:
+        print("Something went wrong!!")
+
+
+
 
 if __name__ == '__main__':
     create_database()
