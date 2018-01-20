@@ -9,7 +9,6 @@ import db_operations
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk, GLib
 
-
 class TimeTracker(Gtk.Window):
 
     def __init__(self):
@@ -27,6 +26,11 @@ class TimeTracker(Gtk.Window):
         self.lbl_time = self.builder.get_object("lbl_time")
         self.lbl_task_name = self.builder.get_object("lbl_taskName")
         self.entry_task_name = self.builder.get_object("entry_activity")
+        self.combo_client = self.builder.get_object("combo_client")
+        # Fetch clients
+        rows = db_operations.retrieve_all_clients()
+        for client in rows:
+            self.combo_client.append_text(client[0])
 
         # Main menu container
         self.main_menubar = self.builder.get_object("menubar2")
