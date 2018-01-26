@@ -27,11 +27,10 @@ class TimeTracker(Gtk.Window):
         self.btn_start.set_sensitive(False)
         self.btn_stop = self.builder.get_object("btn_stop")
         self.lbl_time = self.builder.get_object("lbl_time")
-        self.lbl_task_name = self.builder.get_object("lbl_taskName")
-        self.entry_task_name = self.builder.get_object("entry_activity")
         self.combo_client = self.builder.get_object("combo_client")
         logging.debug(
             "Combo box state: %s " % (self.combo_client.get_active_text()))
+        self.combo_project = self.builder.get_object("combo_project")
         # Main menu container
         self.main_menubar = self.builder.get_object("menubar2")
         # Main menu items
@@ -51,6 +50,8 @@ class TimeTracker(Gtk.Window):
         # Other initialisations
         self.timer_active = False
         self.update_clients_list()
+        self.btn_start.set_sensitive(False)
+        self.btn_stop.set_sensitive(False)
 
     def update_clients_list(self):
             # Update combo box without adding duplicates
@@ -61,12 +62,24 @@ class TimeTracker(Gtk.Window):
                     self.combo_client.append_text(client[0])
             except:
                 pass
+    def update_projects_list(self, name):
+        # Update client project to display project
+        self.combo_project.remove_all()
+        result = db_operations.retrieve_client_details(name, "project")
+        self.combo_project.append_text(result)
+        self.combo_project.set_active(0)
+
+    def save_activity(self):
+        # saves activity to the database
+        pass
 
     def client_drop_down_pressed(self, widget):
         current_client = self.combo_client.get_active_text()
         if current_client:
             print(current_client, " selected")
             self.btn_start.set_sensitive(True)
+            # Update project name in the combo_project field
+            self.update_projects_list(current_client)
 
     def save_button_pressed(self, widget):
         logging.debug("Save button pressed.")
@@ -109,7 +122,8 @@ class TimeTracker(Gtk.Window):
     def time_function(self, time_val):
         '''Main Timer function'''
 
-        time_format = "{hours} Hours:{minutes} minutes:{seconds} Seconds"
+        #time_format = "{hours} Hours:{minutes} minutes:{seconds} Seconds"
+        time_format = "{hours}:{minutes}:{seconds}"
         time_delta = time_val
 
         mins = int(time_delta / 60)
@@ -132,7 +146,6 @@ class TimeTracker(Gtk.Window):
 
         start_time = start_time
         time_delta = int(time.time() - start_time)
-        self.lbl_task_name.set_text(self.entry_task_name.get_text())
         if self.timer_active:
 
             self.lbl_time.set_text(self.time_function(time_delta))
