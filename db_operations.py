@@ -8,6 +8,7 @@ import sqlite3
 # TODO: User must be able to retrieve clients
 # TODO: Handle missing database problem.
 # TODO: Consider using only one function to handle SQL operations
+# TODO: Add table to keep track of time user has spent on each client
 
 DATABASE = 'client_data/clients.db'
 
@@ -46,8 +47,22 @@ def add_client(name, website, project, rate=0):
         pass
 
 def retrieve_client_details(name):
-    # Return the details of one client
-    pass
+    # Return the project details of one client
+    
+    # Make a single element tuple to avoid SQL injection
+    name = (name,)
+    try:
+        with sqlite3.connect(DATABASE) as conn:
+            c = conn.cursor()
+            c.execute(
+                "SELECT project FROM clients WHERE client_name =?", name)
+            project = c.fetchone()
+            return project[0]
+
+    except sqlite3.OperationalError as err:
+        # except OperationalError:
+        print("An error occurred", err)
+
 def modify_client(name):
     pass
 
