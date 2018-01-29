@@ -9,8 +9,10 @@ import sqlite3
 # TODO: Handle missing database problem.
 # TODO: Consider using only one function to handle SQL operations
 # TODO: Add table to keep track of time user has spent on each client
+# TODO: Add code to create the user table
 
-DATABASE = 'client_data/clients.db'
+# DATABASE = 'client_data/clients.db'
+DATABASE = 'client_data/clients_staging.db'
 
 def create_database():
     filepath = 'client_data/'
@@ -20,9 +22,16 @@ def create_database():
     with sqlite3.connect(filename) as conn:
         c = conn.cursor()
         c.execute(
-            """CREATE TABLE clients (client_name TEXT, client_website TEXT,
-               project TEXT NOT NULL, PRIMARY KEY(client_name))
-               """)
+            "CREATE TABLE IF NOT EXISTS "
+            "clients (id INTEGER PRIMARY KEY AUTOINCREMENT, client_name TEXT, "
+            "client_website TEXT,project TEXT NOT NULL)"
+        )
+
+        c.execute(
+            "CREATE TABLE IF NOT EXISTS "
+            "user(task_id INTEGER, client_id INTEGER,client_name TEXT, project"
+            "TEXT, task_date TEXT, duration	NUMERIC, PRIMARY KEY(task_id))"
+        )
     assert os.path.exists(filename)
 
 def destroy_database():
@@ -42,25 +51,23 @@ def add_client(name, website, project, rate=0):
             c = conn.cursor()
             c.execute("INSERT INTO clients VALUES (?,?,?)", client)
             conn.commit()
-    except:
-        # except OperationalError:
+    except sqlite3.OperationalError as err:
         pass
 
-def retrieve_client_details(name):
-    # Return the project details of one client
-    
+def retrieve_client_details(name, detail):
+    # Return a particular detail about the client
+    operation = {"id": 0, "name": 1, "website": 2, "project": 3}
+
     # Make a single element tuple to avoid SQL injection
     name = (name,)
     try:
         with sqlite3.connect(DATABASE) as conn:
             c = conn.cursor()
-            c.execute(
-                "SELECT project FROM clients WHERE client_name =?", name)
-            project = c.fetchone()
-            return project[0]
+            c.execute("SELECT * FROM clients WHERE client_name =?", name)                
+            result = c.fetchone()
+            return result[operation[detail]]
 
     except sqlite3.OperationalError as err:
-        # except OperationalError:
         print("An error occurred", err)
 
 def modify_client(name):
@@ -82,7 +89,21 @@ def retrieve_all_clients():
     except sqlite3.OperationalError:
         print("Something went wrong!!")
 
-
+def save_work(client, project, date, duration):
+    # Client ID is the PK in clients database
+    client_id = retrieve_client_details(client, "id")
+    try:
+        with sqlite3.connect(DATABASE) as conn:
+            c = conn.cursor()
+            work = (client_id, client, project, date, duration)
+            c.execute(
+                "INSERT INTO user "
+                "(client_id, client_name, project, task_date, duration)"
+                " VALUES (?,?,?,?,?)", work
+            )
+            conn.commit()
+    except sqlite3.OperationalError as err:
+        print(err)
 
 
 if __name__ == '__main__':
