@@ -49,6 +49,7 @@ class TimeTracker(Gtk.Window):
 
         # Other initialisations
         self.timer_active = False
+        self.duration = None
         self.update_clients_list()
         self.btn_start.set_sensitive(False)
         self.btn_stop.set_sensitive(False)
@@ -71,7 +72,15 @@ class TimeTracker(Gtk.Window):
 
     def save_activity(self):
         # saves activity to the database
-        pass
+        # calculates total time spent on task
+        duration = int(time.time() - self.start_time)
+        #logging.debug(duration)
+        client = self.combo_client.get_active_text()
+        project = self.combo_project.get_active_text()
+        date = datetime.datetime.today()
+        #logging.debug(date)
+
+        db_operations.save_work(client, project, date, duration)
 
     def client_drop_down_pressed(self, widget):
         current_client = self.combo_client.get_active_text()
@@ -82,6 +91,7 @@ class TimeTracker(Gtk.Window):
             self.update_projects_list(current_client)
 
     def save_button_pressed(self, widget):
+        # New client window
         logging.debug("Save button pressed.")
 
         name = self.client_name.get_text()
@@ -144,7 +154,7 @@ class TimeTracker(Gtk.Window):
     def display_time(self, start_time):
         '''Update GUI with elapsed time'''
 
-        start_time = start_time
+        #start_time = start_time
         time_delta = int(time.time() - start_time)
         if self.timer_active:
 
@@ -155,9 +165,12 @@ class TimeTracker(Gtk.Window):
 
     def start_timer(self, widget):
         '''Starts the timer'''
-
+        # TODO: Consider putting this in the __init__ constructor
         self.start_time = time.time()
         self.timer_active = not self.timer_active
+        # Toggle Start and Stop button states
+        self.btn_start.set_sensitive(False)
+        self.btn_stop.set_sensitive(True)
         if self.timer_active is False:
             #self.button9.set_label("Start Timer")
             print("Start Button Pressed")
@@ -168,8 +181,10 @@ class TimeTracker(Gtk.Window):
 
     def stop_timer(self, widget):
         """Stops the timer"""
-        self.btn_start.set_sensitive(False)
+        self.btn_start.set_sensitive(True)
+        self.btn_stop.set_sensitive(False)
         self.timer_active = False
+        self.save_activity()
         print("Stop timer button pressed")
 
 
