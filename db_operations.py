@@ -49,10 +49,13 @@ def add_client(name, website, project, rate=0):
     try:
         with sqlite3.connect(DATABASE) as conn:
             c = conn.cursor()
-            c.execute("INSERT INTO clients VALUES (?,?,?)", client)
+            c.execute(
+                "INSERT INTO clients(client_name, client_website, project) "
+                "VALUES (?,?,?)", client
+            )
             conn.commit()
     except sqlite3.OperationalError as err:
-        pass
+        print(err)
 
 def retrieve_client_details(name, detail):
     # Return a particular detail about the client
