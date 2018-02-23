@@ -1,8 +1,10 @@
 import datetime
 import time
 import gi
+import sys
 
 import pdb
+import sqlite3
 import logging
 import db_operations
 
@@ -24,7 +26,6 @@ class TimeTracker(Gtk.Window):
 
         # GUI widgets
         self.btn_start = self.builder.get_object("btn_start")
-        self.btn_start.set_sensitive(False)
         self.btn_stop = self.builder.get_object("btn_stop")
         self.lbl_time = self.builder.get_object("lbl_time")
         self.combo_client = self.builder.get_object("combo_client")
@@ -56,19 +57,31 @@ class TimeTracker(Gtk.Window):
 
     def update_clients_list(self):
             # Update combo box without adding duplicates
-            try:
-                self.combo_client.remove_all()
-                rows = db_operations.retrieve_all_clients()
-                for client in rows:
-                    self.combo_client.append_text(client[0])
-            except:
-                pass
+            if db_operations.database_exists():
+                try:
+                    self.combo_client.remove_all()
+                    rows = db_operations.retrieve_all_clients()
+                    for client in rows:
+                        self.combo_client.append_text(client[0])
+                except TypeError:
+                    logging.error(sys.exc_info()[1])
+            else:
+                logging.warning("Database not found, creating new database.")
+                db_operations.create_database()
+                #update_clients_list()
+
+
     def update_projects_list(self, name):
         # Update client project to display project
         self.combo_project.remove_all()
-        result = db_operations.retrieve_client_details(name, "project")
-        self.combo_project.append_text(result)
-        self.combo_project.set_active(0)
+        try:
+            result = db_operations.retrieve_client_details(name, "project")
+            self.combo_project.append_text(result)
+            self.combo_project.set_active(0)
+        except:
+            print(sys.exc_info()[1])
+
+
 
     def save_activity(self):
         # saves activity to the database
@@ -85,24 +98,31 @@ class TimeTracker(Gtk.Window):
     def client_drop_down_pressed(self, widget):
         current_client = self.combo_client.get_active_text()
         if current_client:
-            print(current_client, " selected")
+            logging.debug(str(current_client) + " selected")
             self.btn_start.set_sensitive(True)
-            # Update project name in the combo_project field
+            # Update the project name in the combo_project field
             self.update_projects_list(current_client)
 
     def save_button_pressed(self, widget):
         # New client window
-        logging.debug("Save button pressed.")
-
         name = self.client_name.get_text()
         website = self.client_website.get_text()
         project = self.client_project.get_text()
         logging.debug('Name: ' + name)
         logging.debug('Website: ' + website)
         logging.debug('Project:' + project)
+        logging.debug("New Client Window: Save button pressed.")
 
-        db_operations.add_client(name, website, project)
-        logging.debug("New client added to database.")
+        try:
+            db_operations.add_client(name, website, project)
+            logging.debug("Client details successfully added to database")
+        except sqlite3.OperationalError as err:
+            logging.error(err)
+            db_operations.create_database()
+            logging.debug("New client database created")
+            db_operations.add_client(name, website, project)
+            logging.debug("Client details successfully added to database")
+
         self.update_clients_list()
         self.client_info_window_close(self)
 
@@ -173,10 +193,10 @@ class TimeTracker(Gtk.Window):
         self.btn_stop.set_sensitive(True)
         if self.timer_active is False:
             #self.button9.set_label("Start Timer")
-            print("Start Button Pressed")
+            logging.debug("Start Button Pressed")
         else:
             #self.button9.set_label("Stop Timer")
-            print("Start/Stop button pressed")
+            logging.debug("Start/Stop Button Pressed")
         GLib.timeout_add(1000, self.display_time, self.start_time)
 
     def stop_timer(self, widget):
@@ -185,7 +205,7 @@ class TimeTracker(Gtk.Window):
         self.btn_stop.set_sensitive(False)
         self.timer_active = False
         self.save_activity()
-        print("Stop timer button pressed")
+        logging.debug("Stop timer button pressed")
 
 
 if __name__ == "__main__":
