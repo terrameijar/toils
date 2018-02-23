@@ -29,15 +29,6 @@
       </object>
     </child>
   </object>
-  <object class="GtkApplicationWindow" id="applicationwindow1">
-    <property name="can_focus">False</property>
-    <child>
-      <object class="GtkComboBox" id="combobox1">
-        <property name="visible">True</property>
-        <property name="can_focus">False</property>
-      </object>
-    </child>
-  </object>
   <object class="GtkImage" id="image1">
     <property name="visible">True</property>
     <property name="can_focus">False</property>
@@ -176,6 +167,7 @@
           <object class="GtkButton" id="btn_start">
             <property name="label" translatable="yes">Start Tracking</property>
             <property name="visible">True</property>
+            <property name="sensitive">False</property>
             <property name="can_focus">True</property>
             <property name="receives_default">True</property>
             <property name="margin_left">3</property>
@@ -302,7 +294,14 @@
           </packing>
         </child>
         <child>
-          <placeholder/>
+          <object class="GtkSwitch" id="switch1">
+            <property name="visible">True</property>
+            <property name="can_focus">True</property>
+          </object>
+          <packing>
+            <property name="left_attach">6</property>
+            <property name="top_attach">3</property>
+          </packing>
         </child>
         <child>
           <placeholder/>
@@ -538,6 +537,29 @@
         </child>
         <child>
           <placeholder/>
+        </child>
+        <child>
+          <placeholder/>
+        </child>
+      </object>
+    </child>
+  </object>
+  <object class="GtkWindow" id="window1">
+    <property name="can_focus">False</property>
+    <child>
+      <object class="GtkGrid" id="grid1">
+        <property name="visible">True</property>
+        <property name="can_focus">False</property>
+        <child>
+          <object class="GtkLabel" id="label3">
+            <property name="visible">True</property>
+            <property name="can_focus">False</property>
+            <property name="label" translatable="yes">Overview of tasks</property>
+          </object>
+          <packing>
+            <property name="left_attach">1</property>
+            <property name="top_attach">0</property>
+          </packing>
         </child>
         <child>
           <placeholder/>
