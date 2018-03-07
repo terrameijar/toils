@@ -39,6 +39,7 @@ class TimeTracker(Gtk.Window):
         self.edit_menu = self.builder.get_object("menuitem_edit")
         # Drop Down Menu items
         self.file_new = self.builder.get_object("menuitem_file_new")
+        self.file_quit = self.builder.get_object("menuitem_file_quit")
         self.edit_prefs = self.builder.get_object("menuitem_edit_pref")
 
 
@@ -46,6 +47,7 @@ class TimeTracker(Gtk.Window):
         self.btn_start.connect("clicked", self.start_timer)
         self.btn_stop.connect("clicked", self.stop_timer)
         self.file_new.connect("activate", self.new_client_window_open)
+        self.file_quit.connect("activate", self.quit_program)
         self.combo_client.connect("changed", self.client_drop_down_pressed)
 
         # Other initialisations
@@ -54,6 +56,9 @@ class TimeTracker(Gtk.Window):
         self.update_clients_list()
         self.btn_start.set_sensitive(False)
         self.btn_stop.set_sensitive(False)
+
+    def quit_program(self):
+        pass
 
     def update_clients_list(self):
             # Update combo box without adding duplicates
@@ -86,12 +91,12 @@ class TimeTracker(Gtk.Window):
     def save_activity(self):
         # saves activity to the database
         # calculates total time spent on task
-        duration = int(time.time() - self.start_time)
-        #logging.debug(duration)
+        duration = float(time.time() - self.start_time)/3600
+        logging.debug("Duration " + str(duration))
         client = self.combo_client.get_active_text()
         project = self.combo_project.get_active_text()
         date = datetime.date.today()
-        #logging.debug(date)
+        logging.debug(date)
 
         db_operations.save_work(client, project, date, duration)
 
@@ -196,7 +201,7 @@ class TimeTracker(Gtk.Window):
             logging.debug("Start Button Pressed")
         else:
             #self.button9.set_label("Stop Timer")
-            logging.debug("Start/Stop Button Pressed")
+            logging.debug("Stop Button Pressed")
         GLib.timeout_add(1000, self.display_time, self.start_time)
 
     def stop_timer(self, widget):
