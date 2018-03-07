@@ -87,6 +87,14 @@ def delete_client(name):
     pass
     # remove this client from database
 
+def retrieve_single_client(name):
+    try:
+        with sqlite3.connect(DATABASE) as conn:
+            c = conn.cursor()
+            c.execute("SELECT client_name, client_website,")
+    except:
+        pass
+
 def retrieve_all_clients():
     # Retrieve the details of all the clients
     try:
