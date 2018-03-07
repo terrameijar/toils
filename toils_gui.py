@@ -90,7 +90,7 @@ class TimeTracker(Gtk.Window):
         #logging.debug(duration)
         client = self.combo_client.get_active_text()
         project = self.combo_project.get_active_text()
-        date = datetime.datetime.today()
+        date = datetime.date.today()
         #logging.debug(date)
 
         db_operations.save_work(client, project, date, duration)
