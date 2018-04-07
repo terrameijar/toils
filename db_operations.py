@@ -107,8 +107,10 @@ def retrieve_all_clients():
     except sqlite3.OperationalError as err:
         print(err)
 
+### Functions relating to the user's work records ###
+
 def save_work(client, project, date, duration):
-    # Client ID is the PK in clients database
+    # Client ID is the PK in clients table
     client_id = retrieve_client_details(client, "id")
     try:
         with sqlite3.connect(DATABASE) as conn:
@@ -120,6 +122,18 @@ def save_work(client, project, date, duration):
                 " VALUES (?,?,?,?,?)", work
             )
             conn.commit()
+    except sqlite3.OperationalError as err:
+        print(err)
+
+def retrieve_user_work_record():
+    try:
+        with sqlite3.connect(DATABASE) as conn:
+            c = conn.cursor()
+            c.execute(
+                "SELECT client_name, project, task_date, duration FROM user"
+            )
+            rows = c.fetchall()
+            return rows
     except sqlite3.OperationalError as err:
         print(err)
 
