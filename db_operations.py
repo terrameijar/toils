@@ -88,12 +88,27 @@ def delete_client(name):
     # remove this client from database
 
 def retrieve_single_client(name):
+    # Retrieves all the details of named client
     try:
         with sqlite3.connect(DATABASE) as conn:
             c = conn.cursor()
-            c.execute("SELECT client_name, client_website,")
-    except:
-        pass
+            c.execute("SELECT client_name, client_website \
+               FROM clients WHERE client_name = name")
+            client_details = c.fetchall()
+            return client_details
+    except sqlite3.OperationalError as err:
+        print(err)
+
+def retrieve_client_list():
+    try:
+        with sqlite3.connect(DATABASE) as conn:
+            c = conn.cursor()
+            c.execute(
+                "SELECT client_name FROM clients")
+            rows = c.fetchall()
+            return rows
+    except sqlite3.OperationalError as err:
+        print(err)
 
 def retrieve_all_clients():
     # Retrieve the details of all the clients
