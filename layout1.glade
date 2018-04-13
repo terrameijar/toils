@@ -44,6 +44,7 @@
     <property name="halign">baseline</property>
     <property name="resizable">False</property>
     <property name="window_position">center-always</property>
+    <property name="icon_name">appointment-new</property>
     <child>
       <object class="GtkGrid" id="grid2">
         <property name="visible">True</property>
@@ -78,6 +79,14 @@
                       <object class="GtkSeparatorMenuItem" id="separatormenuitem2">
                         <property name="visible">True</property>
                         <property name="can_focus">False</property>
+                      </object>
+                    </child>
+                    <child>
+                      <object class="GtkMenuItem" id="mnu_overview">
+                        <property name="visible">True</property>
+                        <property name="can_focus">False</property>
+                        <property name="label" translatable="yes">Overview</property>
+                        <property name="use_underline">True</property>
                       </object>
                     </child>
                     <child>
