@@ -49,6 +49,8 @@ class TreeViewFilterWindow(Gtk.Window):
         self.cbo_client.set_active(0)
         self.btn_export = Gtk.Button("Export TimeSheet")
         self.btn_export.connect("clicked", self.export_timesheet, self.client_filter)
+        self.select_all = Gtk.CheckButton("Select All")
+        self.select_all.connect("toggled", self.on_check_btn_toggle)
 
         clients_list = self.get_clients()
         for client in clients_list:
@@ -63,6 +65,7 @@ class TreeViewFilterWindow(Gtk.Window):
         self.grid.attach_next_to(self.cbo_client, self.scrollable_treelist,
                                  Gtk.PositionType.BOTTOM,1,1)
         self.grid.attach_next_to(self.btn_export, self.cbo_client, Gtk.PositionType.RIGHT,1,1)
+        self.grid.attach_next_to(self.select_all, self.btn_export, Gtk.PositionType.RIGHT, 1,1)
         self.scrollable_treelist.add(self.treeview)
         self.show_all()
         self.get_clients()
@@ -80,6 +83,14 @@ class TreeViewFilterWindow(Gtk.Window):
         self.current_filter_client = widget.get_active_text()
         self.client_filter.refilter()
 
+    def on_check_btn_toggle(self, widget):
+        toggled = self.select_all.get_active()
+        if toggled:
+            self.treeview_selection.select_all()
+        else:
+            self.treeview_selection.unselect_all()
+
+
     def get_clients(self):
         return db_operations.retrieve_client_list()
 
@@ -90,8 +101,9 @@ class TreeViewFilterWindow(Gtk.Window):
         model, selected_rows = self.treeview_selection.get_selected_rows()
         if selected_rows != None:
             for row in selected_rows:
-                print(model[row][0:])
                 rows_to_export.append(model[row][0:])
+
+        print(rows_to_export)
 
         return rows_to_export
 
