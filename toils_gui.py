@@ -6,6 +6,7 @@ import sys
 import pdb
 import sqlite3
 import logging
+import overview
 import db_operations
 
 gi.require_version('Gtk', '3.0')
@@ -39,6 +40,7 @@ class TimeTracker(Gtk.Window):
         self.edit_menu = self.builder.get_object("menuitem_edit")
         # Drop Down Menu items
         self.file_new = self.builder.get_object("menuitem_file_new")
+        self.file_overview = self.builder.get_object("mnu_overview")
         self.file_quit = self.builder.get_object("menuitem_file_quit")
         self.edit_prefs = self.builder.get_object("menuitem_edit_pref")
 
@@ -47,6 +49,7 @@ class TimeTracker(Gtk.Window):
         self.btn_start.connect("clicked", self.start_timer)
         self.btn_stop.connect("clicked", self.stop_timer)
         self.file_new.connect("activate", self.new_client_window_open)
+        self.file_overview.connect("activate", self.overview_window_open)
         self.file_quit.connect("activate", self.quit_program)
         self.combo_client.connect("changed", self.client_drop_down_pressed)
 
@@ -153,6 +156,9 @@ class TimeTracker(Gtk.Window):
         self.btn_cancel.connect("clicked", self.client_info_window_close)
         self.btn_save.connect("clicked", self.save_button_pressed)
         self.client_info_window.show_all()
+
+    def overview_window_open(self, widget):
+        self.overview_win = overview.TreeViewFilterWindow()
 
     def time_function(self, time_val):
         '''Main Timer function'''

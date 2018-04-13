@@ -108,8 +108,8 @@ class TreeViewFilterWindow(Gtk.Window):
         return rows_to_export
 
 
-
-win = TreeViewFilterWindow()
-win.connect("delete-event", Gtk.main_quit)
-win.show_all
-Gtk.main()
+if __name__ == "__main__":
+    win = TreeViewFilterWindow()
+    win.connect("delete-event", Gtk.main_quit)
+    win.show_all
+    Gtk.main()
