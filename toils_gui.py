@@ -21,6 +21,7 @@ class TimeTracker(Gtk.Window):
         self.builder = Gtk.Builder()
         self.builder.add_from_file("layout1.glade")
         self.window = self.builder.get_object("window2")
+        #self.window.set_border_width(10)
         self.window.set_title("Toils App")
         self.window.connect("delete-event", Gtk.main_quit)
         self.window.show_all()

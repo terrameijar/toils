@@ -4,8 +4,6 @@ from gi.repository import Gtk
 import db_operations
 
 
-work_record = db_operations.retrieve_user_work_record()
-
 class TreeViewFilterWindow(Gtk.Window):
 
     def __init__(self):
@@ -19,6 +17,9 @@ class TreeViewFilterWindow(Gtk.Window):
         self.grid.set_column_homogeneous(True)
         self.grid.set_row_homogeneous(True)
         self.add(self.grid)
+
+        # Get timesheets from database
+        work_record = db_operations.retrieve_user_work_record()
 
         # Creating the ListStore model
         self.work_record_liststore = \
@@ -70,6 +71,7 @@ class TreeViewFilterWindow(Gtk.Window):
         self.show_all()
         self.get_clients()
 
+
     def client_filter_func(self, model, iter, data):
         """Tests if the client in the row is the one in the filter"""
         if self.current_filter_client is None or \
@@ -111,5 +113,5 @@ class TreeViewFilterWindow(Gtk.Window):
 if __name__ == "__main__":
     win = TreeViewFilterWindow()
     win.connect("delete-event", Gtk.main_quit)
-    win.show_all
+    win.show_all()
     Gtk.main()
