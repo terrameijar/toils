@@ -1,3 +1,4 @@
+import csv
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
@@ -105,7 +106,21 @@ class TreeViewFilterWindow(Gtk.Window):
             for row in selected_rows:
                 rows_to_export.append(model[row][0:])
 
-        print(rows_to_export)
+        #print(rows_to_export)
+        try:
+            with open("work_record.txt", "a+") as fobj:
+                for record in  rows_to_export:
+                    print(record)
+                    for item in record:
+                        fobj.write(str(item) + " ")
+                    fobj.write("\n")
+
+            with open("work_record.csv", "w") as fobj:
+                output_writer = csv.writer(fobj)
+                for record in rows_to_export:
+                    output_writer.writerow(record)
+        except IOError:
+            print("IO Error")
 
         return rows_to_export
 
