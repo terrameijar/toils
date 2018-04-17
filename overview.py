@@ -1,8 +1,10 @@
+from functools import reduce
 import csv
 import gi
 gi.require_version('Gtk', '3.0')
 from gi.repository import Gtk
 import db_operations
+import invoices
 
 
 class TreeViewFilterWindow(Gtk.Window):
@@ -51,6 +53,7 @@ class TreeViewFilterWindow(Gtk.Window):
         self.cbo_client.set_active(0)
         self.btn_export = Gtk.Button("Export TimeSheet")
         self.btn_export.connect("clicked", self.export_timesheet, self.client_filter)
+        self.btn_export.set_sensitive(False)
         self.select_all = Gtk.CheckButton("Select All")
         self.select_all.connect("toggled", self.on_check_btn_toggle)
 
@@ -83,7 +86,16 @@ class TreeViewFilterWindow(Gtk.Window):
 
 
     def on_combo_selection_changed(self, widget):
+        # Updates the treeview to show work done for the selected client
+
         self.current_filter_client = widget.get_active_text()
+        if self.current_filter_client != "All Clients":
+            self.btn_export.set_sensitive(True)
+        else:
+            self.btn_export.set_sensitive(False)
+
+        # If client changed, uncheck the select all checkbox and refresh filter
+        self.select_all.set_active(False)
         self.client_filter.refilter()
 
     def on_check_btn_toggle(self, widget):
@@ -100,29 +112,40 @@ class TreeViewFilterWindow(Gtk.Window):
     def export_timesheet(self, widget, data):
         # This function allows the user to select the work records they want
         # to export to the spreadsheet or database.
-        rows_to_export = []
+        time_sheet = []
         model, selected_rows = self.treeview_selection.get_selected_rows()
         if selected_rows != None:
             for row in selected_rows:
-                rows_to_export.append(model[row][0:])
+                time_sheet.append(model[row][0:])
 
-        #print(rows_to_export)
+        # Save the names of the project(s) the user did for client
+        projects = {record[1] for record in time_sheet}
+
+        # Calculate out how much time the user spent working for client
+        hours = [work_record[3] for work_record in time_sheet]
+        total_hours = int(reduce((lambda x, y: x + y), hours))
+
+        # Determine the start and end dates
+        start_date = time_sheet[0][2]  # Get date in first record
+        end_date = time_sheet[-1][2]   # Get date in the last record
+
+
         try:
             with open("work_record.txt", "a+") as fobj:
-                for record in  rows_to_export:
-                    print(record)
+                for record in  time_sheet:
                     for item in record:
                         fobj.write(str(item) + " ")
                     fobj.write("\n")
 
             with open("work_record.csv", "w") as fobj:
                 output_writer = csv.writer(fobj)
-                for record in rows_to_export:
+                for record in time_sheet:
                     output_writer.writerow(record)
         except IOError:
             print("IO Error")
 
-        return rows_to_export
+        invoices.generate_excel_invoice(start_date,end_date,projects, total_hours)
+        return time_sheet, projects, start_date, end_date, total_hours
 
 
 if __name__ == "__main__":
