@@ -2,7 +2,7 @@
 
 ![Toils App](/images/toils_gui.png)
 
-Toils is written in Python and GTK+. It uses a SQLite database in the backend.
+Toils is written in Python and GTK+. It uses a SQLite database in the backend. This project is a work in progress.
 
 # Motivation
 
