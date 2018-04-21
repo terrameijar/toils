@@ -4,6 +4,7 @@ import os.path
 import unittest
 import db_operations
 import toils_gui
+import overview
 import sqlite3
 from faker import Faker
 import pdb
@@ -162,6 +163,15 @@ class TestUI(unittest.TestCase):
             os.remove(cls.TEST_DB)
         except FileNotFoundError as err:
             print(err)
+
+class TestOverview(unittest.TestCase):
+
+    def test_client_dropdown_displays_correct_clients(self):
+        self.overview_window = overview.TreeViewFilterWindow()
+        active_client = self.overview_window.cbo_client.get_active()
+        self.assertEqual(active_client, "All Clients")
+
+
 
 if __name__ == "__main__":
     unittest.TestLoader.sortTestMethodsUsing = None
