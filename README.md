@@ -1,5 +1,7 @@
 # Toils -- A Time tracking and invoicing application for freelancers
 
+![Toils App](/images/toils_gui.png)
+
 Toils is written in Python and GTK+. It uses a SQLite database in the backend.
 
 # Motivation
